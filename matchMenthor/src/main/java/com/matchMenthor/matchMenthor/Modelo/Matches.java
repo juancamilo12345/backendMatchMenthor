@@ -1,8 +1,6 @@
 package com.matchMenthor.matchMenthor.Modelo;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -12,8 +10,6 @@ import java.time.LocalDateTime;
         name = "matches",
         uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "mentor_id"})
 )
-@Getter
-@Setter
 public class Matches { // <- mejor nombre en singular
 
     @Id
@@ -40,6 +36,23 @@ public class Matches { // <- mejor nombre en singular
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
 
     public enum Status {
         PENDING, ACCEPTED, REJECTED

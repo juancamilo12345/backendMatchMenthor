@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/matchMenthor.iml" filepath="$PROJECT_DIR$/.idea/matchMenthor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/backendMatchMenthor.iml" filepath="$PROJECT_DIR$/.idea/backendMatchMenthor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/matchMenthor/matchMenthor.iml" filepath="$PROJECT_DIR$/matchMenthor/matchMenthor.iml" />
     </modules>
   </component>
 </project>

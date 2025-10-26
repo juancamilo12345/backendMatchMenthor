@@ -1,8 +1,6 @@
 package com.matchMenthor.matchMenthor.Modelo;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -11,8 +9,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "subjects")
-@Getter
-@Setter
 public class Subjects {
 
     @Id
@@ -32,5 +28,21 @@ public class Subjects {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public String getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 }
 

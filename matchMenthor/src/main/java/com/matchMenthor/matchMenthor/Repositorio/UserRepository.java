@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<Users,Long> {
     List<Users> findByRole(Users.Role role);
 
     // Cargar mentorProfile junto con el usuario (evita N+1 al leer)
-    @EntityGraph(attributePaths = {"MentorProfiles"})
+    @EntityGraph(attributePaths = {"mentorProfile"})
     Optional<Users> findWithMentorProfileById(Long id);
 
     // Conteos rápidos

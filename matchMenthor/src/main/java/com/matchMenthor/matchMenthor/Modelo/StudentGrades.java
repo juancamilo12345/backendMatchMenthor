@@ -1,8 +1,6 @@
 package com.matchMenthor.matchMenthor.Modelo;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -12,8 +10,6 @@ import java.time.LocalDateTime;
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"student_id", "subject_id"}) // opcional, evita duplicados por estudiante/materia
         })
-@Getter
-@Setter
 public class StudentGrades {
 
     @Id
@@ -39,4 +35,20 @@ public class StudentGrades {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public Double getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Double grade) {
+        this.grade = grade;
+    }
+
+    public LocalDateTime getTakenAt() {
+        return takenAt;
+    }
+
+    public void setTakenAt(LocalDateTime takenAt) {
+        this.takenAt = takenAt;
+    }
 }

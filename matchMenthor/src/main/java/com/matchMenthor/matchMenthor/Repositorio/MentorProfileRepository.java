@@ -14,7 +14,7 @@ public interface MentorProfileRepository extends JpaRepository<MentorProfiles, L
 
     // Búsquedas básicas por texto (skills, bio). Ajusta a tu motor real (ILIKE en Postgres).
     @Query("""
-           SELECT mp FROM MentorProfile mp
+           SELECT mp FROM MentorProfiles mp
            WHERE LOWER(mp.skills) LIKE LOWER(CONCAT('%', :q, '%'))
               OR LOWER(mp.biography) LIKE LOWER(CONCAT('%', :q, '%'))
            """)
