@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Modelo/Users")
+@RequestMapping("/users")
 @CrossOrigin(origins = "*")
 public class UsersController {
 
