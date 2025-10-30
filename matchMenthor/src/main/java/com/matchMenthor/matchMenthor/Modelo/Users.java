@@ -7,6 +7,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.Duration;
+
 
 @Entity
 @Table(
@@ -80,6 +83,30 @@ public class Users {
         this.city = city;
     }
 
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(boolean bloqueado) {
+        this.bloqueado = bloqueado;
+    }
+
+    public int getIntentosFallidos() {
+        return intentosFallidos;
+    }
+
+    public void setIntentosFallidos(int intentosFallidos) {
+        this.intentosFallidos = intentosFallidos;
+    }
+
+    public LocalDateTime getFechaBloqueo() {
+        return fechaBloqueo;
+    }
+
+    public void setFechaBloqueo(LocalDateTime fechaBloqueo) {
+        this.fechaBloqueo = fechaBloqueo;
+    }
+
     // === Campos ===
 
     @Column(nullable = false, length = 120)
@@ -97,6 +124,14 @@ public class Users {
 
     @Column(nullable = false, length = 80)
     private String city;
+
+    @Column(nullable = false)
+    private boolean bloqueado = false;
+
+    @Column(nullable = false)
+    private int intentosFallidos = 0;
+
+    private LocalDateTime fechaBloqueo;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
