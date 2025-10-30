@@ -1,6 +1,7 @@
 package com.matchMenthor.matchMenthor.Servicio;
 
 import com.matchMenthor.matchMenthor.Modelo.MentorProfiles;
+import com.matchMenthor.matchMenthor.Modelo.Users;
 import com.matchMenthor.matchMenthor.Repositorio.MentorProfileRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class MentorProfilesService {
         this.repository = repository;
     }
 
+    // CRUD genérico (lo mantenemos)
     public List<MentorProfiles> getAll() {
         return repository.findAll();
     }
@@ -35,6 +37,7 @@ public class MentorProfilesService {
                     profile.setSkills(newProfile.getSkills());
                     profile.setAvailability(newProfile.getAvailability());
                     profile.setRating(newProfile.getRating());
+                    // OJO: aquí normalmente no cambiamos el mentor asociado
                     return repository.save(profile);
                 })
                 .orElseThrow(() -> new RuntimeException("Perfil de mentor no encontrado"));
@@ -43,5 +46,23 @@ public class MentorProfilesService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
-}
 
+    // ============================
+    // NUEVO: obtener perfil por id de mentor. Si no existe, devolver uno vacío EN MEMORIA
+    // (para que el controlador no truene con null).
+    // ============================
+    public MentorProfiles getOrCreateByMentorId(Long mentorId) {
+        return repository.findByMentor_Id(mentorId)
+                .orElseGet(MentorProfiles::new);
+    }
+
+    // ============================
+    // NUEVO: guardar/actualizar asegurando que esté ligado al mentor correcto
+    // ============================
+    public MentorProfiles saveProfileForMentor(Users mentorUser, MentorProfiles profile) {
+        // MUY IMPORTANTE:
+        // Nos aseguramos que el perfil tenga asociado el mentor correcto
+        profile.setMentor(mentorUser);
+        return repository.save(profile);
+    }
+}

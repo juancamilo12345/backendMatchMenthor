@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<Users,Long> {
 
     // Conteos rápidos
     long countByRole(Users.Role role);
+
+
 }

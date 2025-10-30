@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "student_grades",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"student_id", "subject_id"}) // opcional, evita duplicados por estudiante/materia
+                @UniqueConstraint(columnNames = {"student_id", "subject_id"})
         })
 public class StudentGrades {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // mejor Long y autoincrement
+    private Long id;
 
     // FK hacia Users -> student_id
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -36,6 +36,28 @@ public class StudentGrades {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // ====== getters / setters ======
+
+    public Long getId() {
+        return id;
+    }
+
+    public Users getStudent() {
+        return student;
+    }
+
+    public void setStudent(Users student) {
+        this.student = student;
+    }
+
+    public Subjects getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subjects subject) {
+        this.subject = subject;
+    }
+
     public Double getGrade() {
         return grade;
     }
@@ -50,5 +72,9 @@ public class StudentGrades {
 
     public void setTakenAt(LocalDateTime takenAt) {
         this.takenAt = takenAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

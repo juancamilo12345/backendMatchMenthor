@@ -20,22 +20,21 @@ public class StudentInfoService {
         this.usersRepository = usersRepository;
     }
 
-    // Obtener info estudiante por id de usuario
+    // Traer info académica del estudiante por id de usuario.
+    // Si no existe, devolvemos uno vacío en vez de null
     public StudentInfo getStudentInfo(Long userId) {
         return studentInfoRepository.findByUserId(userId)
                 .orElse(new StudentInfo());
     }
 
-    // Crear o actualizar info estudiante
+    // (lo dejamos para usos futuros tipo POST /students/{id}/info)
     public StudentInfo upsertStudentInfo(Long userId, StudentInfo body) {
-        // buscar usuario
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Usuario no encontrado"
                 ));
 
-        // validar rol
         if (user.getRole() != Users.Role.STUDENT) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -43,20 +42,17 @@ public class StudentInfoService {
             );
         }
 
-        // si ya hay StudentInfo, lo reutilizamos (update), si no creamos uno nuevo
         StudentInfo info = studentInfoRepository.findByUserId(userId)
                 .orElseGet(StudentInfo::new);
 
-        // asignar/actualizar campos permitidos
         info.setUser(user);
         info.setPrograma(body.getPrograma());
         info.setSemestre(body.getSemestre());
 
-        // guardar
         return studentInfoRepository.save(info);
     }
 
-    // Crear un nuevo usuario con rol STUDENT y su StudentInfo asociado
+    // usado por el PUT del controlador
     public StudentInfo createOrUpdateStudentInfo(Users user, StudentInfo infoBody) {
         StudentInfo info = studentInfoRepository.findByUserId(user.getId())
                 .orElse(new StudentInfo());
@@ -67,6 +63,6 @@ public class StudentInfoService {
 
         return studentInfoRepository.save(info);
     }
-
-
 }
+
+

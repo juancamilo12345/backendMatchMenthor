@@ -72,4 +72,12 @@ public class MentorProfiles {
     public void setRating(Double rating) {
         this.rating = rating;
     }
+
+    public void setMentor(Users mentorUser) {
+        this.mentor = mentorUser;
+    }
+
+    public Users getMentor() {
+        return mentor;
+    }
 }

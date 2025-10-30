@@ -11,3 +11,6 @@ public interface SubjectRepository extends JpaRepository<Subjects, Long> {
     Optional<Subjects> findByCode(String code);
     boolean existsByCode(String code);
 }
+
+
+
