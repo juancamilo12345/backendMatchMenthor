@@ -1,6 +1,7 @@
 package com.matchMenthor.matchMenthor.Controlador;
 
 import com.matchMenthor.matchMenthor.Modelo.StudentInfo;
+import com.matchMenthor.matchMenthor.Modelo.Users;
 import com.matchMenthor.matchMenthor.Servicio.StudentInfoService;
 import com.matchMenthor.matchMenthor.Servicio.UsersService;
 import org.springframework.http.HttpStatus;
@@ -19,24 +20,27 @@ public class StudentController {
     private final StudentInfoService studentInfoService;
     private final UsersService usersService;
 
-    public StudentController(StudentInfoService studentInfoService, UsersService usersService) {
+    public StudentController(StudentInfoService studentInfoService,
+                             UsersService usersService) {
         this.studentInfoService = studentInfoService;
         this.usersService = usersService;
     }
 
-    // ------------- GET PERFIL DEL USUARIO ACTUAL -------------
-    // Front envia header:  X-USER-ID: 12
-    // y NO mando nada en localStorage
+    // ----------------------------------------------------
+    // GET /students/me/full-info
+    // el front manda:  X-USER-ID: <id_user>
+    // ----------------------------------------------------
     @GetMapping("/me/full-info")
     public ResponseEntity<Map<String, Object>> getMyFullInfo(
             @RequestHeader("X-USER-ID") Long userId
     ) {
-        var user = usersService.getUserById(userId)
+        Users user = usersService.getUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Usuario no encontrado"
                 ));
 
+        // Si no hay student_info, devolvemos uno vacío
         StudentInfo studentInfo = studentInfoService.getStudentInfo(userId);
 
         Map<String, Object> response = new HashMap<>();
@@ -54,37 +58,46 @@ public class StudentController {
         return ResponseEntity.ok(response);
     }
 
-    // ------------- PUT PERFIL DEL USUARIO ACTUAL -------------
-    // Front envia header:  X-USER-ID: 12
-    // y body con los campos editados
+    // ----------------------------------------------------
+    // PUT /students/me/full-info
+    // el front manda:  X-USER-ID: <id_user>
+    // y en el body: { name, email, city, programa, semestre }
+    // ----------------------------------------------------
     @PutMapping("/me/full-info")
     public ResponseEntity<?> updateMyFullInfo(
             @RequestHeader("X-USER-ID") Long userId,
             @RequestBody Map<String, Object> body
     ) {
-        // 1. Traer usuario base
-        var user = usersService.getUserById(userId)
+        // 1. Traer el usuario REAL que existe en la BD
+        Users currentUser = usersService.getUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Usuario no encontrado"
                 ));
 
-        // 2. Traer o crear info académica asociada
-        var studentInfo = studentInfoService.getStudentInfo(userId);
+        // 2. Preparar un Users parcial SOLO con los campos que quiero cambiar
+        Users toUpdate = new Users();
+        // muy importante: conservar rol y bloqueado
+        toUpdate.setRole(currentUser.getRole());
+        toUpdate.setBlocked(currentUser.isBlocked());
 
-        // -------- actualizar datos Users --------
         if (body.containsKey("name")) {
-            user.setName((String) body.get("name"));
+            toUpdate.setName((String) body.get("name"));
         }
         if (body.containsKey("email")) {
-            user.setEmail((String) body.get("email"));
+            // si quieres impedir cambiar email, elimina este bloque
+            toUpdate.setEmail((String) body.get("email"));
         }
         if (body.containsKey("city")) {
-            user.setCity((String) body.get("city"));
+            toUpdate.setCity((String) body.get("city"));
         }
-        usersService.createUser(user); // persiste Users
 
-        // -------- actualizar datos StudentInfo --------
+        // 👉 aquí usamos UPDATE, NO createUser
+        usersService.updateUser(userId, toUpdate);
+
+        // 3. Traer o crear la info académica
+        StudentInfo studentInfo = studentInfoService.getStudentInfo(userId);
+
         if (body.containsKey("programa")) {
             studentInfo.setPrograma((String) body.get("programa"));
         }
@@ -93,17 +106,19 @@ public class StudentController {
             Object semestreRaw = body.get("semestre");
             if (semestreRaw instanceof Number) {
                 studentInfo.setSemestre(((Number) semestreRaw).intValue());
-            } else {
+            } else if (semestreRaw != null) {
                 try {
                     studentInfo.setSemestre(Integer.parseInt(semestreRaw.toString()));
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                    // si viene algo raro, lo dejamos como está
+                }
             }
         }
 
-        studentInfoService.createOrUpdateStudentInfo(user, studentInfo);
+        // asegurar que quede ligado al usuario
+        studentInfo.setUser(currentUser);
+        studentInfoService.createOrUpdateStudentInfo(currentUser, studentInfo);
 
         return ResponseEntity.ok("Información actualizada correctamente");
     }
 }
-
-

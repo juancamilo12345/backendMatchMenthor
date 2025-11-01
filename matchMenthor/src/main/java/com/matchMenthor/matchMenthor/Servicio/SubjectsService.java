@@ -4,6 +4,7 @@ import com.matchMenthor.matchMenthor.Modelo.Subjects;
 import com.matchMenthor.matchMenthor.Repositorio.SubjectRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,7 +16,9 @@ public class SubjectsService {
         this.repository = repository;
     }
 
-    public java.util.List<Subjects> getAll() {
+    // ===== CRUD básico =====
+
+    public List<Subjects> getAll() {
         return repository.findAll();
     }
 
@@ -41,7 +44,16 @@ public class SubjectsService {
         repository.deleteById(id);
     }
 
-    // ====== NUEVOS MÉTODOS ======
+    // ===== NUEVO: save directo =====
+    /**
+     * Guarda la materia tal cual llega. Útil cuando ya tienes la instancia
+     * (por ejemplo, la trajiste por código y solo cambiaste el nombre).
+     */
+    public Subjects save(Subjects subject) {
+        return repository.save(subject);
+    }
+
+    // ====== MÉTODOS DE APOYO ======
 
     public Optional<Subjects> findByCode(String code) {
         return repository.findByCode(code);
@@ -60,4 +72,5 @@ public class SubjectsService {
                 });
     }
 }
+
 

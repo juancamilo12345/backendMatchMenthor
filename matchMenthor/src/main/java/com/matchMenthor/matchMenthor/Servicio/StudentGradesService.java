@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,9 @@ public class StudentGradesService {
         this.repository = repository;
     }
 
-    // ===== CRUD general (admin o pruebas) =====
+    // =====================================================
+    // CRUD GENERAL
+    // =====================================================
 
     public List<StudentGrades> getAll() {
         return repository.findAll();
@@ -32,10 +35,13 @@ public class StudentGradesService {
         return repository.save(grade);
     }
 
+    /**
+     * Actualiza una nota existente. Solo toca los campos que tienen sentido
+     * para una edición de nota: grade y takenAt.
+     */
     public StudentGrades update(Long id, StudentGrades newGrade) {
         return repository.findById(id)
                 .map(grade -> {
-                    // solo actualizamos lo que tiene sentido
                     grade.setGrade(newGrade.getGrade());
                     grade.setTakenAt(newGrade.getTakenAt());
                     // NO tocamos student ni subject aquí
@@ -48,7 +54,9 @@ public class StudentGradesService {
         repository.deleteById(id);
     }
 
-    // ===== Lo que necesitas para el front del estudiante =====
+    // =====================================================
+    // LO QUE USA EL FRONT DEL ESTUDIANTE
+    // =====================================================
 
     /**
      * Trae las notas de un estudiante, ordenadas de la más reciente a la más vieja.
@@ -66,8 +74,7 @@ public class StudentGradesService {
      * Úsalo si tu front solo va a mostrar la lista tal cual.
      */
     public List<StudentGrades> getByStudentId(Long studentId) {
-        // usamos el método por código de materia si quieres filtrar
-        // pero aquí usamos el paginado con un size grande, o simplemente:
+        // aquí le pongo un page de 1000 para no traernos toda la tabla
         return repository
                 .findByStudent_IdOrderByTakenAtDesc(studentId, PageRequest.of(0, 1000))
                 .getContent();
@@ -82,17 +89,30 @@ public class StudentGradesService {
 
     /**
      * Notas de un estudiante para una materia específica (por código de subject).
-     * Esto cuadra MUY BIEN con tu front, que manda "codigo".
+     * Esto cuadra con el front que manda "codigo".
      */
     public List<StudentGrades> getByStudentAndSubjectCode(Long studentId, String subjectCode) {
         return repository.findByStudent_IdAndSubject_Code(studentId, subjectCode);
     }
 
     /**
-     * Estadísticas de un estudiante (promedio, aprobadas, reprobadas).
-     * Tu repo ya lo trae.
+     * Estadísticas (promedio, aprobadas, reprobadas).
      */
     public StudentGradesRepository.StudentStatsView getStats(Long studentId) {
         return repository.computeStats(studentId);
+    }
+
+    // =====================================================
+    // HELPER OPCIONAL (por si el front solo manda la nota)
+    // =====================================================
+
+    public StudentGrades updateOnlyGrade(Long id, Double newGrade) {
+        return repository.findById(id)
+                .map(grade -> {
+                    grade.setGrade(newGrade);
+                    grade.setTakenAt(LocalDateTime.now());
+                    return repository.save(grade);
+                })
+                .orElseThrow(() -> new RuntimeException("Nota no encontrada"));
     }
 }

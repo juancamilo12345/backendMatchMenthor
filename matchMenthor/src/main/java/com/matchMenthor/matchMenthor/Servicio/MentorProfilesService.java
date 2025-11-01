@@ -17,7 +17,6 @@ public class MentorProfilesService {
         this.repository = repository;
     }
 
-    // CRUD genérico (lo mantenemos)
     public List<MentorProfiles> getAll() {
         return repository.findAll();
     }
@@ -37,7 +36,6 @@ public class MentorProfilesService {
                     profile.setSkills(newProfile.getSkills());
                     profile.setAvailability(newProfile.getAvailability());
                     profile.setRating(newProfile.getRating());
-                    // OJO: aquí normalmente no cambiamos el mentor asociado
                     return repository.save(profile);
                 })
                 .orElseThrow(() -> new RuntimeException("Perfil de mentor no encontrado"));
@@ -47,22 +45,23 @@ public class MentorProfilesService {
         repository.deleteById(id);
     }
 
-    // ============================
-    // NUEVO: obtener perfil por id de mentor. Si no existe, devolver uno vacío EN MEMORIA
-    // (para que el controlador no truene con null).
-    // ============================
-    public MentorProfiles getOrCreateByMentorId(Long mentorId) {
-        return repository.findByMentor_Id(mentorId)
-                .orElseGet(MentorProfiles::new);
+    // ✅ Nuevo método: crea y guarda si no existe
+    public MentorProfiles getOrCreateAndSaveIfNeeded(Users mentorUser) {
+        return repository.findByMentor_Id(mentorUser.getId())
+                .orElseGet(() -> {
+                    MentorProfiles nuevo = new MentorProfiles();
+                    nuevo.setMentor(mentorUser);
+                    nuevo.setBiography("");
+                    nuevo.setSkills("");
+                    nuevo.setAvailability("");
+                    nuevo.setRating(0.0);
+                    return repository.save(nuevo);
+                });
     }
 
-    // ============================
-    // NUEVO: guardar/actualizar asegurando que esté ligado al mentor correcto
-    // ============================
     public MentorProfiles saveProfileForMentor(Users mentorUser, MentorProfiles profile) {
-        // MUY IMPORTANTE:
-        // Nos aseguramos que el perfil tenga asociado el mentor correcto
         profile.setMentor(mentorUser);
         return repository.save(profile);
     }
 }
+

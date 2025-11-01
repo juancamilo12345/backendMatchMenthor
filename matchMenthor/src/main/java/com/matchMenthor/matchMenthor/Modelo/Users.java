@@ -80,7 +80,8 @@ public class Users {
     // === Enum de rol ===
     public enum Role {
         STUDENT,
-        MENTOR
+        MENTOR,
+        ADMIN
         // si más adelante quieres ADMIN, lo agregas aquí
     }
 
